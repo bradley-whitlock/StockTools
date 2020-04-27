@@ -54,6 +54,7 @@ class Stocks:
 		ax1.set_ylabel("Dividend Amount ($)", color=div_color)
 		ax1.set_xlabel("Payment Date")
 		ax1.tick_params(axis='y', labelcolor=div_color)
+		ax1.set_ylim(bottom=0)
 
 		ax2 = ax1.twinx()
 		stock_color = 'tab:red'
@@ -62,6 +63,7 @@ class Stocks:
 		ax2.plot(stock_date, stock_amt, color=stock_color, linewidth=0.6)
 		ax2.tick_params(axis='y', labelcolor=stock_color)
 		ax2.set_ylabel("Stock Price ($)", color=stock_color)
+		ax2.set_ylim(bottom=0)
 
 		# Second Subplot
 		prev = div_amt[:-4]
@@ -72,8 +74,10 @@ class Stocks:
 		axs[1].set_title("Dividend Delta's for: %s" % self._ticker.upper())
 		axs[1].set_xlabel("Payment Date")
 		axs[1].set_ylabel("% Change (1 year)")
+		axs[1].grid()
 
 		plt.tight_layout()
+		plt.savefig("./plots/%s_dividend.png" % self._ticker)
 		plt.show()
 
 	def plot_stock_monthly(self):
@@ -86,11 +90,12 @@ class Stocks:
 		plt.title("Monthly Stock Price with Volatility: %s" % self._ticker.upper())
 		plt.xlabel("Payment Date")
 		plt.ylabel("Amount ($)")
+		plt.savefig("./plots/%s_monthly.png" % self._ticker)
 		plt.show()
 
 
 if __name__ == "__main__":
 	stocks = Stocks(ticker=args.ticker, start_date=args.start_date, secrets=args.secrets)
 
-	stocks.plot_stock_monthly()
+	# stocks.plot_stock_monthly()
 	stocks.plot_dividend_deltas_with_stock_price()
