@@ -40,19 +40,33 @@ class Stocks:
 		self.dividend = CanadianDividendUtils(ticker=ticker, start_date=start_date)
 		self.stock = StockUtils(ticker=ticker, secrets=secrets, start_date=start_date)
 
+		if not self._is_dividend_data_avaiable():
+			print("WARNING: No Dividend data for %s" % self._ticker)
+		if not self._is_stock_data_avaiable():
+			print("WARNING: No Dividend data for %s" % self._ticker)
+
+	def _is_dividend_data_avaiable(self):
+		return self.dividend.data is not None
+
+	def _is_stock_data_avaiable(self):
+		return self.stock.data is not None
+
 	def plot_dividend_deltas_with_stock_price(self):
+		if not self._is_dividend_data_avaiable() or not self._is_stock_data_avaiable():
+			print("Not creating plot. Missing data.")
+			return
+
 		# First Subplot
-		fig, axs = plt.subplots(1, 2)
+		fig, axs = plt.subplots(1, 2, constrained_layout=True)
 
 		ax1 = axs[0]
-		ax1.set_title("Dividend Payments for: %s" % self._ticker.upper())
-
 		div_color = "tab:blue"
 		div_date = self.dividend.data[0]
 		div_amt = self.dividend.data[1]
 		ax1.plot(div_date, div_amt, color=div_color)
 		ax1.set_ylabel("Dividend Amount ($)", color=div_color)
 		ax1.set_xlabel("Payment Date")
+		ax1.set_title("History")
 		ax1.tick_params(axis='y', labelcolor=div_color)
 		ax1.set_ylim(bottom=0)
 
@@ -69,18 +83,22 @@ class Stocks:
 		prev = div_amt[:-4]
 		curr = div_amt[4:]
 		deltas = np.divide(curr - prev, prev) * 100
-
 		axs[1].plot(div_date[4:], deltas)
-		axs[1].set_title("Dividend Delta's for: %s" % self._ticker.upper())
+		axs[1].set_title("1 Year Delta")
 		axs[1].set_xlabel("Payment Date")
 		axs[1].set_ylabel("% Change (1 year)")
 		axs[1].grid()
 
-		plt.tight_layout()
+		current_yield = (4 * self.dividend.latest()) / self.stock.latest() * 100
+		plt.suptitle("Dividend Information for %s. Current yield: %.2f%%" % (self._ticker.upper(), current_yield))
 		plt.savefig("./plots/%s_dividend.png" % self._ticker)
 		plt.show()
 
 	def plot_stock_monthly(self):
+		if not self._is_stock_data_avaiable():
+			print("Not creating plot. Missing data.")
+			return
+
 		stats = self.stock.monthly_stats()
 		month = stats[0]
 		price_avg = stats[1]

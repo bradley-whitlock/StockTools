@@ -29,18 +29,6 @@ class CanadianDividendUtils:
 	def _data_has_been_scraped(self):
 		return path.exists(self._dividend_filename_with_dir)
 
-	def load_data(self):
-		if self._data_has_been_scraped():
-			data = self._load_data_from_local()
-		else:
-			data = self._scrape_for_dividend_data()
-
-		if self._start_date:
-			valid_indicies = np.where(data[0] > self._start_date)
-			data = data.T[valid_indicies].T
-
-		return data
-
 	def _load_data_from_local(self):
 		rows = []
 		with open(self._dividend_filename_with_dir, newline='') as csvfile:
@@ -75,9 +63,30 @@ class CanadianDividendUtils:
 
 		# Want the data in ascending order for plotting, might need to do for data_rows too??
 		csv_rows.reverse()
+		data_rows.reverse()
 
-		with open(self._dividend_filename_with_dir, "w+") as my_csv:
-			csvWriter = csv.writer(my_csv, delimiter=',')
-			csvWriter.writerows(csv_rows)
+		if len(data_rows) > 0:
+			with open(self._dividend_filename_with_dir, "w+") as my_csv:
+				csvWriter = csv.writer(my_csv, delimiter=',')
+				csvWriter.writerows(csv_rows)
 
 		return np.array(data_rows).T
+
+	def load_data(self):
+		if self._data_has_been_scraped():
+			data = self._load_data_from_local()
+		else:
+			data = self._scrape_for_dividend_data()
+
+		# No dividend data is possible
+		if data.size == 0:
+			return None
+
+		if self._start_date:
+			valid_indicies = np.where(data[0] > self._start_date)
+			data = data.T[valid_indicies].T
+
+		return data
+
+	def latest(self):
+		return self.data[1][-1]

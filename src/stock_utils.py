@@ -21,7 +21,11 @@ class StockUtils:
 	def get_closing_prices(self):
 		response = requests.get(self._stock_price_url)
 		res_json = response.json()
-		time_series = res_json['Time Series (Daily)']
+		time_series = res_json.get('Time Series (Daily)')
+		# If the wrong ticker is provided then there will only be an error message not a Time Series attribute
+		if time_series is None:
+			return None
+
 		closing_prices_stamped = []
 		for day, prices in time_series.items():
 			day_obj = to_date_object(day, format="%Y-%m-%d")
@@ -49,5 +53,8 @@ class StockUtils:
 			prices.append(self.data[1][idx])
 
 		return np.array(prices_for_range).T
+
+	def latest(self):
+		return self.data[1][-1]
 
 
