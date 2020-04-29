@@ -7,7 +7,7 @@ Run: `python src/main.py --ticker lb --start-date 2018-01-01`
 
 ### Plots Generated
 #### Dividend Information
-![Dividend Information](./img/lb_div.png)
+![Dividend Information](./img/slf_div.png)
 #### Volatility Information
 ![Volatility Information](./img/lb_monthly.png)
 

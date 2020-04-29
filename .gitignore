@@ -2,3 +2,5 @@ keys.json
 .idea/*
 **/__pycache__/**
 plots/*.png
+**/..DS_Store
+.DS_Store
